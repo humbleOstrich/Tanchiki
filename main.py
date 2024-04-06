@@ -4,6 +4,7 @@ import os
 from logic.player1 import Player1
 from logic.player2 import Player2
 from logic.block import Block
+from logic.fence import Fence
 
 
 def add_to_database(level, score):
@@ -26,6 +27,8 @@ def get_from_database():
 def draw_blocks():
     for b in blocks:
         screen.blit(b.color, (b.rect.x, b.rect.y))
+    screen.blit(order_1, (630, 0))
+    screen.blit(order_2, (770, 630))
 
 
 def load_image(name, colorkey=None):
@@ -49,47 +52,61 @@ def generate_level(level):
     global screen_color
     # new_player, x, y = None, None, None
     color = (0, 0, 0)
+    x1 = 0
     for y in range(len(level)):
+        x1 = 0
         for x in range(len(level[y])):
             if level[y][x] == 'f':
                 color = fence
-                blocks.append(Block((x, y), color))
+                blocks.append(Fence(x1, y * 70, color))
+                x1 += 35
             elif level[y][x] == '.':
                 color = field
-                blocks.append(Block((x, y), color))
+                blocks.append(Block(x1, y * 70, color))
+                x1 += 70
             elif level[y][x] == 'g':
                 color = grass
-                blocks.append(Block((x, y), color))
+                blocks.append(Block(x1, y * 70, color))
+                x1 += 70
             elif level[y][x] == 'i':
                 color = ice
-                blocks.append(Block((x, y), color))
+                blocks.append(Block(x1, y * 70, color))
+                x1 += 70
             elif level[y][x] == 'b':
                 color = brick
-                blocks.append(Block((x, y), color))
+                blocks.append(Block(x1, y * 70, color))
+                x1 += 70
             elif level[y][x] == 'w':
                 color = water
-                blocks.append(Block((x, y), color))
+                blocks.append(Block(x1, y * 70, color))
+                x1 += 70
             elif level[y][x] == 'm':
                 color = metal
-                blocks.append(Block((x, y), color))
+                blocks.append(Block(x1, y * 70, color))
+                x1 += 70
             elif level[y][x] == 'M':
                 color = metal_half
-                blocks.append(Block((x, y), color))
+                blocks.append(Block(x1, y * 70, color))
+                x1 += 70
             elif level[y][x] == 'u':
                 color = upper_brick
-                blocks.append(Block((x, y), color))
+                blocks.append(Block(x1, y * 70, color))
+                x1 += 70
             elif level[y][x] == 'l':
                 color = lower_brick
-                blocks.append(Block((x, y), color))
+                blocks.append(Block(x1, y * 70, color))
+                x1 += 70
             elif level[y][x] == 'L':
                 color = left_brick
-                blocks.append(Block((x, y), color))
+                blocks.append(Block(x1, y * 70, color))
+                x1 += 70
             elif level[y][x] == 'R':
                 color = right_brick
-                blocks.append(Block((x, y), color))
+                blocks.append(Block(x1, y * 70, color))
+                x1 += 70
 
-    map_width = 50 * len(level[0])
-    map_height = 50 * len(level)
+    # map_width = 50 * len(level[0])
+    # map_height = 50 * len(level)
     # return new_player, x, y
 
 
@@ -148,6 +165,8 @@ ice = load_image('ice.png')
 fence = load_image('fence.png')
 metal = load_image('metal.png')
 metal_half = load_image('metal_half.png')
+order_1 = load_image('order_1.png')
+order_2 = load_image('order_2.png')
 pygame.display.set_caption('Battle City')
 map_name = "map.txt"
 generate_level(load_level(map_name))
