@@ -3,12 +3,13 @@ import pygame
 
 class Block(pygame.sprite.Sprite):
 
-    def __init__(self, stepx, stepy, color):
+    def __init__(self, x, y, color, type):
         super().__init__()
-        self.rect = pygame.Rect(stepx, stepy, 70, 70)
-        self.rect.x = stepx
-        self.rect.y = stepy
+        self.rect = pygame.Rect(x * 25, y * 25, 25, 25)
+        self.rect.x = x * 25
+        self.rect.y = y * 25
         self.color = color
+        self.type = type
 
     # def update(self):
     #     pygame.draw.rect(screen, self.color, (self.rect.x, self.rect.y, 25, 25))
