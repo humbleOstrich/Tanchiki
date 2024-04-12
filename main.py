@@ -1,28 +1,30 @@
 import pygame
 import sqlite3
 import os
+import sys
 from logic.player1 import Player1
 from logic.player2 import Player2
 from logic.block import Block
 from logic.fence import Fence
 from random import randint
+from copy import copy
 
 
-def add_to_database(level, score):
-    con = sqlite3.connect("tanks.sqlite")
-    cur = con.cursor()
-    cur.execute(f'INSERT INTO res(level,score) VALUES({level}, {score})')
-    con.commit()
-    con.close()
-
-
-def get_from_database():
-    con = sqlite3.connect("tanks.sqlite")
-    cur = con.cursor()
-    data = cur.execute(f'SELECT score FROM res').fetchall()
-    max_value = max(map(lambda x: int(*x), data))
-    con.close()
-    return max_value
+# def add_to_database(level, score):
+#     con = sqlite3.connect("tanks.sqlite")
+#     cur = con.cursor()
+#     cur.execute(f'INSERT INTO res(level,score) VALUES({level}, {score})')
+#     con.commit()
+#     con.close()
+#
+#
+# def get_from_database():
+#     con = sqlite3.connect("tanks.sqlite")
+#     cur = con.cursor()
+#     data = cur.execute(f'SELECT score FROM res').fetchall()
+#     max_value = max(map(lambda x: int(*x), data))
+#     con.close()
+#     return max_value
 
 
 def draw_blocks():
@@ -41,13 +43,13 @@ def draw_grass():
 
 def draw_tanks():
     for t in tanks1:
-        print(t.rect.x, t.rect.y)
+        # print(t.rect.x, t.rect.y)
         # screen.blit(tank_img, (t.rect.x, t.rect.y))
         # pygame.draw.rect(screen, (255, 0, 0), (t.rect.x, t.rect.y, 50, 50))
-        screen.blit(ghost, (t.rect.x, t.rect.y))
+        screen.blit(t.color, (t.rect.x, t.rect.y))
     for t in tanks2:
-        print(t.rect.x, t.rect.y)
-        screen.blit(ghost, (t.rect.x, t.rect.y))
+        # print(t.rect.x, t.rect.y)
+        screen.blit(t.color, (t.rect.x, t.rect.y))
         # pygame.draw.rect(screen, (255, 0, 0), (t.rect.x, t.rect.y, 50, 50))
 
 
@@ -122,13 +124,65 @@ def spawn(n):
     a = randint(0, 1)
     if n == 1:
         x, y = spawn1[a]
-        tanks1.append(Player1(x, y))
+        entity = Player1(x, y, copy(tank1), tanks1_gr)
+        tanks1.append(entity)
+        all_tanks.append(entity)
     else:
         x, y = spawn2[a]
-        tanks2.append(Player1(x, y))
+        entity = Player2(x, y, copy(tank2), tanks2_gr)
+        tanks2.append(entity)
+        all_tanks.append(entity)
 
 
-def change_route(ent, cr):
+def fire_anim():
+    pass
+
+
+def check_fire():
+    for i in tanks1:
+        for j in tanks2:
+            if (i.rect.x == j.rect.x and i.rect.y == j.rect.y):
+                pass
+
+
+def flip_sprite(s):
+    route = s.route
+    if s.number == 1:
+        if s.route == -2:
+            s.color = tank1
+        elif s.route == 2:
+            s.color = pygame.transform.flip(tank1, False, True)
+        elif s.route == -1:
+            s.color = pygame.transform.rotate(tank1, 90)
+        elif s.route == 1:
+            s.color = pygame.transform.rotate(tank1, -90)
+    else:
+        if s.route == -2:
+            s.color = tank2
+        elif s.route == 2:
+            s.color = pygame.transform.flip(tank2, False, True)
+        elif s.route == -1:
+            s.color = pygame.transform.rotate(tank2, 90)
+        elif s.route == 1:
+            s.color = pygame.transform.rotate(tank2, -90)
+
+
+# def check_collision(t1, t2):
+    # if t1.rect.right > t2.rect.left and \
+    #         t1.rect.left < t2.rect.right and \
+    #         t1.rect.bottom > t2.rect.top and \
+    #         t1.rect.top < t2.rect.bottom:
+    #     return True
+    # if t2.rect.right > t1.rect.left and \
+    #         t2.rect.left < t1.rect.right and \
+    #         t2.rect.bottom > t1.rect.top and \
+    #         t2.rect.top < t1.rect.bottom:
+    #     return True
+    # return False
+
+
+def change_route(ent):
+    cr = ent.route
     possible_routes = [-1, 1, -2, 2]
     route = possible_routes[randint(0, 3)]
     while route == cr:
@@ -148,11 +202,12 @@ def col_check(group):
             mob = pygame.Rect(t1.rect.x, t1.rect.y - speed, 50, 50)
         for b in blocks:
             if b.type == False and mob.colliderect(b):
-                t1.route = change_route(t1, t1.route)
+                t1.route = change_route(t1)
+                flip_sprite(t1)
                 break
             elif b.color == ice and ((mob.x == b.rect.x and mob.y == b.rect.y)
             or (mob.x + 25 == b.rect.x + 25 and mob.y + 25 == b.rect.y + 25)):
-                t1.status = 200
+                t1.status = 100
                 t1.speed = 9
         else:
             t1.move()
@@ -161,36 +216,73 @@ def col_check(group):
             t1.speed = 5
 
 
+def collision(group):
+    for t1 in group:
+        if t1.route == 1:
+            mob1 = pygame.Rect(t1.rect.x + speed, t1.rect.y, 50, 50)
+        elif t1.route == -1:
+            mob1 = pygame.Rect(t1.rect.x - speed, t1.rect.y, 50, 50)
+        elif t1.route == 2:
+            mob1 = pygame.Rect(t1.rect.x, t1.rect.y + speed, 50, 50)
+        elif t1.route == -2:
+            mob1 = pygame.Rect(t1.rect.x, t1.rect.y - speed, 50, 50)
+        for t2 in group:
+            if t1 != t2:
+                if t2.route == 1:
+                    mob2 = pygame.Rect(t2.rect.x + speed, t2.rect.y, 50, 50)
+                elif t2.route == -1:
+                    mob2 = pygame.Rect(t2.rect.x - speed, t2.rect.y, 50, 50)
+                elif t2.route == 2:
+                    mob2 = pygame.Rect(t2.rect.x, t2.rect.y + speed, 50, 50)
+                elif t2.route == -2:
+                    mob2 = pygame.Rect(t2.rect.x, t2.rect.y - speed, 50, 50)
+                if mob1.colliderect(mob2):
+                    t1.route = -t1.route
+                    t2.route = -t2.route
+                    flip_sprite(t1)
+                    flip_sprite(t2)
+
+
 def game():
-    global tk1, tk2
+    global tk1, tk2, spawn_delay1, spawn_delay2
     level_n = 1
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                add_to_database(level_n, score)
+                # add_to_database(level_n, score)
                 terminate()
         # for i in range(10):
         #     screen.blit(variable with picture, (10 + i * 50, 260)) # отрисовать количество
         #     очков, жизней, тп в углу экрана
-        if tk1 < 2:
+        if tk1 < 5 and spawn_delay1 <= 0:
             spawn(1)
             tk1 += 1
-        if tk2 < 2:
+            spawn_delay1 = 100
+        if tk2 < 5 and spawn_delay2 <= 0:
             spawn(2)
             tk2 += 1
-        for t1 in tanks1:
-            for t2 in tanks2:
-                if t1.rect.colliderect(t2.rect):
-                    t1.route = change_route(t1, t1.route)
-                    t2.route = change_route(t2, t2.route)
+            spawn_delay2 = 100
+        # for t1 in tanks1:
+        #     for t2 in tanks2:
+        #         if t1.rect.colliderect(t2.rect):
+        #             t1.route = change_route(t1, t1.route)
+        #             t2.route = change_route(t2, t2.route)
+        # for i in all_tanks:
+        #     for j in all_tanks:
+        #         if i != j and check_collision(i, j):
+        #             print('collision')
+        spawn_delay1 -= 1
+        spawn_delay2 -= 1
+        collision(tanks1)
+        collision(tanks2)
         col_check(tanks1)
         col_check(tanks2)
+        # for i in all_tanks:
+        #     i.move()
         screen.fill((0, 0, 0))
         draw_blocks()
         draw_tanks()
         draw_grass()
-
-        print(tk1, tk2)
         pygame.display.flip()
         clock.tick(FPS)
 
@@ -213,11 +305,16 @@ field_blocks = []
 # all_sprites = pygame.sprite.Group()
 tanks1 = []
 tanks2 = []
+all_tanks = tanks1[:] + tanks2[:]
 spawn1 = []
 spawn2 = []
+tanks1_gr = pygame.sprite.Group()
+tanks2_gr = pygame.sprite.Group()
 speed = 5
 tk1 = 0
 tk2 = 0
+spawn_delay1 = 0
+spawn_delay2 = 0
 
 field = load_image('field2.png')
 brick = load_image('brick2.png')
@@ -233,7 +330,9 @@ metal = load_image('metal2.png')
 # metal_half = load_image('metal_half.png')
 # order_1 = load_image('order_1.png')
 # order_2 = load_image('order_2.png')
-ghost = load_image('red2.png')
+# ghost = load_image('red2.png')
+tank1 = load_image('tank_1.png')
+tank2 = load_image('tank_2.png')
 pygame.display.set_caption('Battle City')
 map_name = "levels/level1.txt"
 generate_level(load_level(map_name))
