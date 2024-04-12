@@ -49,7 +49,6 @@ def draw_tanks():
         print(t.rect.x, t.rect.y)
         screen.blit(ghost, (t.rect.x, t.rect.y))
         # pygame.draw.rect(screen, (255, 0, 0), (t.rect.x, t.rect.y, 50, 50))
-    pygame.draw.rect(screen, (255, 0, 0), (0, 0, 100, 100))
 
 
 def load_image(name, colorkey=None):
@@ -81,7 +80,8 @@ def generate_level(level):
             elif level[y][x] == 'z':
                 spawn2.append([x, y])
                 blocks.append(Block(x, y, color, True))
-            elif level[y][x] == '.':
+            elif level[y][x] == '.' or level[y][x] == 'u' or level[y][x] == 'd'\
+                    or level[y][x] == 'l' or level[y][x] == 'r':
                 color = field
                 blocks.append(Block(x, y, color, True))
             elif level[y][x] == 'g':
@@ -185,9 +185,11 @@ def game():
                     t2.route = change_route(t2, t2.route)
         col_check(tanks1)
         col_check(tanks2)
+        screen.fill((0, 0, 0))
         draw_blocks()
         draw_tanks()
-        # draw_grass()
+        draw_grass()
+
         print(tk1, tk2)
         pygame.display.flip()
         clock.tick(FPS)
@@ -208,6 +210,7 @@ clock = pygame.time.Clock()
 blocks = []
 grass_blocks = []
 field_blocks = []
+# all_sprites = pygame.sprite.Group()
 tanks1 = []
 tanks2 = []
 spawn1 = []
