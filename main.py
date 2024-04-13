@@ -46,9 +46,21 @@ def draw_tanks():
         # print(t.rect.x, t.rect.y)
         # screen.blit(tank_img, (t.rect.x, t.rect.y))
         # pygame.draw.rect(screen, (255, 0, 0), (t.rect.x, t.rect.y, 50, 50))
+        if t.shooting > 0:
+            t.color = tank1_shooting
+            t.shooting -= 1
+        elif t.shooting < 0:
+            t.color = shot
+            t.shooting += 1
         screen.blit(t.color, (t.rect.x, t.rect.y))
     for t in tanks2:
         # print(t.rect.x, t.rect.y)
+        if t.shooting > 0:
+            t.color = tank2_shooting
+            t.shooting -= 1
+        elif t.shooting < 0:
+            t.color = shot
+            t.shooting += 1
         screen.blit(t.color, (t.rect.x, t.rect.y))
         # pygame.draw.rect(screen, (255, 0, 0), (t.rect.x, t.rect.y, 50, 50))
 
@@ -134,15 +146,64 @@ def spawn(n):
         all_tanks.append(entity)
 
 
-def fire_anim():
-    pass
+# def fire_anim():
+#     pass
+
+
+def fire(predator, prey):
+    predator.shooting = 100
+    prey.shooting = -100
 
 
 def check_fire():
     for i in tanks1:
         for j in tanks2:
-            if (i.rect.x == j.rect.x and i.rect.y == j.rect.y):
-                pass
+            if i.rect.x in range(j.rect.x - 24, j.rect.x + 24):
+                a, b = 0, 0
+                top = i if i.rect.y < j.rect.y else j
+                bottom = i if i.rect.y > j.rect.y else j
+                for p in blocks:
+                    if p.type == False and p.rect.y in range(min(i.rect.y, j.rect.y),
+                                                             max(i.rect.y, j.rect.y)):
+                        break
+                else:
+                    if top.route == 2:
+                        a = 1
+                    elif top.route == -1 or top.route == 1:
+                        a = 0.5
+                    if bottom.route == -2:
+                        b = 1
+                    elif bottom.route == -1 or bottom.route == 1:
+                        b = 0.5
+                    if a > b:
+                        top.route = 2
+                        fire(top, bottom)
+                    elif b > a:
+                        bottom.route = -2
+                        fire(bottom, top)
+            if i.rect.y in range(j.rect.y - 24, j.rect.y + 24):
+                a, b = 0, 0
+                left = i if i.rect.x < j.rect.x else j
+                right = i if i.rect.x > j.rect.x else j
+                for p in blocks:
+                    if p.type == False and p.rect.x in range(min(i.rect.x, j.rect.x),
+                                                             max(i.rect.x, j.rect.x)):
+                        break
+                    else:
+                        if left.route == 1:
+                            a = 1
+                        elif left.route == -2 or left.route == 2:
+                            a = 0.5
+                        if right.route == -1:
+                            b = 1
+                        elif right.route == -2 or right.route == 2:
+                            b = 0.5
+                        if a > b:
+                            left.route = 1
+                            fire(left, right)
+                        else:
+                            right.route = -1
+                            fire(right, left)
 
 
 def flip_sprite(s):
@@ -190,57 +251,71 @@ def change_route(ent):
     return route
 
 
-def col_check(group):
+def col_check(group, n):
     for t1 in group:
-        if t1.route == 1:
-            mob = pygame.Rect(t1.rect.x + speed, t1.rect.y, 50, 50)
-        elif t1.route == -1:
-            mob = pygame.Rect(t1.rect.x - speed, t1.rect.y, 50, 50)
-        elif t1.route == 2:
-            mob = pygame.Rect(t1.rect.x, t1.rect.y + speed, 50, 50)
-        elif t1.route == -2:
-            mob = pygame.Rect(t1.rect.x, t1.rect.y - speed, 50, 50)
-        for b in blocks:
-            if b.type == False and mob.colliderect(b):
-                t1.route = change_route(t1)
-                flip_sprite(t1)
-                break
-            elif b.color == ice and ((mob.x == b.rect.x and mob.y == b.rect.y)
-            or (mob.x + 25 == b.rect.x + 25 and mob.y + 25 == b.rect.y + 25)):
-                t1.status = 100
-                t1.speed = 9
+        if t1.shooting == -1:
+            all_tanks.remove(t1)
+            if n == 1:
+                tanks1.remove(t1)
+                tanks1_gr.remove(t1)
+            else:
+                tanks2.remove(t1)
+                tanks2_gr.remove(t1)
+        elif t1.shooting < -1:
+            t1.shooting += 1
+        elif t1.shooting > 0:
+            t1.shooting -= 1
         else:
-            t1.move()
-        t1.status -= 1
-        if t1.status <= 0:
-            t1.speed = 5
+            if t1.route == 1:
+                mob = pygame.Rect(t1.rect.x + speed, t1.rect.y, 50, 50)
+            elif t1.route == -1:
+                mob = pygame.Rect(t1.rect.x - speed, t1.rect.y, 50, 50)
+            elif t1.route == 2:
+                mob = pygame.Rect(t1.rect.x, t1.rect.y + speed, 50, 50)
+            elif t1.route == -2:
+                mob = pygame.Rect(t1.rect.x, t1.rect.y - speed, 50, 50)
+            for b in blocks:
+                if b.type == False and mob.colliderect(b):
+                    t1.route = change_route(t1)
+                    flip_sprite(t1)
+                    break
+                elif b.color == ice and ((mob.x == b.rect.x and mob.y == b.rect.y)
+                or (mob.x + 25 == b.rect.x + 25 and mob.y + 25 == b.rect.y + 25)):
+                    t1.status = 100
+                    t1.speed = 9
+            else:
+                t1.move()
+            t1.status -= 1
+            if t1.status <= 0:
+                t1.speed = 5
 
 
 def collision(group):
     for t1 in group:
-        if t1.route == 1:
-            mob1 = pygame.Rect(t1.rect.x + speed, t1.rect.y, 50, 50)
-        elif t1.route == -1:
-            mob1 = pygame.Rect(t1.rect.x - speed, t1.rect.y, 50, 50)
-        elif t1.route == 2:
-            mob1 = pygame.Rect(t1.rect.x, t1.rect.y + speed, 50, 50)
-        elif t1.route == -2:
-            mob1 = pygame.Rect(t1.rect.x, t1.rect.y - speed, 50, 50)
-        for t2 in group:
-            if t1 != t2:
-                if t2.route == 1:
-                    mob2 = pygame.Rect(t2.rect.x + speed, t2.rect.y, 50, 50)
-                elif t2.route == -1:
-                    mob2 = pygame.Rect(t2.rect.x - speed, t2.rect.y, 50, 50)
-                elif t2.route == 2:
-                    mob2 = pygame.Rect(t2.rect.x, t2.rect.y + speed, 50, 50)
-                elif t2.route == -2:
-                    mob2 = pygame.Rect(t2.rect.x, t2.rect.y - speed, 50, 50)
-                if mob1.colliderect(mob2):
-                    t1.route = -t1.route
-                    t2.route = -t2.route
-                    flip_sprite(t1)
-                    flip_sprite(t2)
+        if t1.shooting == 0:
+            if t1.route == 1:
+                mob1 = pygame.Rect(t1.rect.x + speed, t1.rect.y, 50, 50)
+            elif t1.route == -1:
+                mob1 = pygame.Rect(t1.rect.x - speed, t1.rect.y, 50, 50)
+            elif t1.route == 2:
+                mob1 = pygame.Rect(t1.rect.x, t1.rect.y + speed, 50, 50)
+            elif t1.route == -2:
+                mob1 = pygame.Rect(t1.rect.x, t1.rect.y - speed, 50, 50)
+            for t2 in group:
+                if t1 != t2:
+                    if t2.route == 1:
+                        mob2 = pygame.Rect(t2.rect.x + speed, t2.rect.y, 50, 50)
+                    elif t2.route == -1:
+                        mob2 = pygame.Rect(t2.rect.x - speed, t2.rect.y, 50, 50)
+                    elif t2.route == 2:
+                        mob2 = pygame.Rect(t2.rect.x, t2.rect.y + speed, 50, 50)
+                    elif t2.route == -2:
+                        mob2 = pygame.Rect(t2.rect.x, t2.rect.y - speed, 50, 50)
+                    if mob1.colliderect(mob2):
+                        t1.route = -t1.route
+                        t2.route = -t2.route
+                        flip_sprite(t1)
+                        flip_sprite(t2)
 
 
 def game():
@@ -277,12 +352,13 @@ def game():
         collision(tanks2)
         col_check(tanks1)
         col_check(tanks2)
+        check_fire()
         # for i in all_tanks:
         #     i.move()
         screen.fill((0, 0, 0))
         draw_blocks()
         draw_tanks()
-        draw_grass()
+        # draw_grass()
         pygame.display.flip()
         clock.tick(FPS)
 
@@ -331,8 +407,11 @@ metal = load_image('metal2.png')
 # order_1 = load_image('order_1.png')
 # order_2 = load_image('order_2.png')
 # ghost = load_image('red2.png')
-tank1 = load_image('tank_1.png')
-tank2 = load_image('tank_2.png')
+tank1 = load_image('blue_tank.png')
+tank2 = load_image('tank_green.png')
+tank1_shooting = load_image('blue_tank_shooting.png')
+tank2_shooting = load_image('tank_green_shooting.png')
+shot = load_image('shot.png')
 pygame.display.set_caption('Battle City')
 map_name = "levels/level1.txt"
 generate_level(load_level(map_name))

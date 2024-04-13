@@ -21,18 +21,20 @@ class Player2(pygame.sprite.Sprite):
         self.speed = 5
         self.status = 0
         self.color = color
+        self.shooting = 0
         self.number = 2
         self.under_grass = False
 
     def move(self):
-        if self.route == 1:
-            self.rect = self.rect.move(self.speed, 0)
-        elif self.route == -1:
-            self.rect = self.rect.move(-self.speed, 0)
-        elif self.route == 2:
-            self.rect = self.rect.move(0, self.speed)
-        elif self.route == -2:
-            self.rect = self.rect.move(0, -self.speed)
+        if self.shooting == 0:
+            if self.route == 1:
+                self.rect = self.rect.move(self.speed, 0)
+            elif self.route == -1:
+                self.rect = self.rect.move(-self.speed, 0)
+            elif self.route == 2:
+                self.rect = self.rect.move(0, self.speed)
+            elif self.route == -2:
+                self.rect = self.rect.move(0, -self.speed)
 
     # def update(self):
     #     screen.blit(ghost_food, (self.rect.x, self.rect.y))
