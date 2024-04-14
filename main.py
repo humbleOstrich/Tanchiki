@@ -90,29 +90,25 @@ def generate_level(level):
         for x in range(len(level[y])):
             if level[y][x] == 's':
                 spawn1.append([x, y])
-                blocks.append(Block(x, y, color, True))
+                blocks.append(Block(x, y, field, True))
             elif level[y][x] == 'z':
                 spawn2.append([x, y])
-                blocks.append(Block(x, y, color, True))
+                blocks.append(Block(x, y, field, True))
             elif level[y][x] == '.' or level[y][x] == 'u' or level[y][x] == 'd'\
                     or level[y][x] == 'l' or level[y][x] == 'r':
-                color = field
-                blocks.append(Block(x, y, color, True))
+                blocks.append(Block(x, y, field, True))
             elif level[y][x] == 'g':
                 blocks.append(Block(x, y, field, True))
                 grass_blocks.append(Block(x, y, grass, True))
             elif level[y][x] == 'i':
-                color = ice
-                blocks.append(Block(x, y, color, True))
+                blocks.append(Block(x, y, ice, True))
             elif level[y][x] == 'b':
-                color = brick
-                blocks.append(Block(x, y, color, False))
+                blocks.append(Block(x, y, field, True))
+                blocks.append(Block(x, y, brick, False))
             elif level[y][x] == 'w':
-                color = water
-                blocks.append(Block(x, y, color, False))
+                blocks.append(Block(x, y, water, False))
             elif level[y][x] == 'm':
-                color = metal
-                blocks.append(Block(x, y, color, False))
+                blocks.append(Block(x, y, metal, False))
 
     # map_width = 50 * len(level[0])
     # map_height = 50 * len(level)
@@ -133,17 +129,33 @@ def terminate():
 
 
 def spawn(n):
+    global tk1, tk2, spawn_delay1, spawn_delay2
     a = randint(0, 1)
+    print('spawn', n, tk1, tk2)
     if n == 1:
         x, y = spawn1[a]
-        entity = Player1(x, y, copy(tank1), tanks1_gr)
-        tanks1.append(entity)
+        for i in all_tanks:
+            if i.rect.x in range(x - 100, x + 50) or i.rect.y in range(y - 100, y + 50):
+                break
+        else:
+            entity = Player1(x, y, copy(tank1), tanks1_gr)
+            tanks1.append(entity)
+            flip_sprite(entity, True)
+            all_tanks.append(entity)
+            tk1 += 1
+            spawn_delay1 = 100
     else:
         x, y = spawn2[a]
-        entity = Player2(x, y, copy(tank2), tanks2_gr)
-        tanks2.append(entity)
-    flip_sprite(entity, True)
-    all_tanks.append(entity)
+        for i in all_tanks:
+            if i.rect.x in range(x - 100, x + 50) or i.rect.y in range(y - 100, y + 50):
+                break
+        else:
+            entity = Player2(x, y, copy(tank2), tanks2_gr)
+            tanks2.append(entity)
+            flip_sprite(entity, True)
+            all_tanks.append(entity)
+            tk2 += 1
+            spawn_delay2 = 100
 
 
 # def fire_anim():
@@ -269,6 +281,16 @@ def change_route(ent):
     return route
 
 
+def fire_brick(t, b):
+    t.shooting = 35
+    if t.number == 1:
+        t.color = tank1_shooting
+    else:
+        t.color = tank2_shooting
+    flip_sprite(t, False)
+    blocks.remove(b)
+
+
 def col_check(group, n):
     for t1 in group:
         if t1.shooting == -1:
@@ -300,9 +322,19 @@ def col_check(group, n):
                 mob = pygame.Rect(t1.rect.x, t1.rect.y - t1.speed, 50, 50)
             for b in blocks:
                 if b.type == False and mob.colliderect(b):
-                    t1.route = change_route(t1)
-                    flip_sprite(t1, True)
-                    break
+                    if b.color == brick:
+                        fire_chance = randint(0, 2)
+                        if fire_chance == 1:
+                            fire_brick(t1, b)
+                            break
+                        else:
+                            t1.route = change_route(t1)
+                            flip_sprite(t1, True)
+                            break
+                    else:
+                        t1.route = change_route(t1)
+                        flip_sprite(t1, True)
+                        break
                 elif b.color == ice and ((mob.x == b.rect.x and mob.y == b.rect.y)
                 or (mob.x + 25 == b.rect.x + 25 and mob.y + 25 == b.rect.y + 25)):
                     t1.status = 100
@@ -337,8 +369,9 @@ def collision(group):
                         mob2 = pygame.Rect(t2.rect.x, t2.rect.y - t2.speed, 50, 50)
                     if mob1.colliderect(mob2):
                         t1.route = -t1.route
-                        t2.route = -t2.route
                         flip_sprite(t1, True)
+                        # if t2.shooting == 0:
+                        t2.route = -t2.route
                         flip_sprite(t2, True)
 
 
@@ -355,12 +388,12 @@ def game():
         #     очков, жизней, тп в углу экрана
         if tk1 < 5 and spawn_delay1 <= 0:
             spawn(1)
-            tk1 += 1
-            spawn_delay1 = 100
+            # tk1 += 1
+            # spawn_delay1 = 100
         if tk2 < 5 and spawn_delay2 <= 0:
             spawn(2)
-            tk2 += 1
-            spawn_delay2 = 100
+            # tk2 += 1
+            # spawn_delay2 = 100
         # for t1 in tanks1:
         #     for t2 in tanks2:
         #         if t1.rect.colliderect(t2.rect):
