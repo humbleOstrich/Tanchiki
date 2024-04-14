@@ -291,7 +291,7 @@ def fire_brick(t, b):
     blocks.remove(b)
 
 
-def col_check(group, n):
+def col_check(group, n, enemy):
     for t1 in group:
         if t1.shooting == -1:
             all_tanks.remove(t1)
@@ -320,6 +320,12 @@ def col_check(group, n):
                 mob = pygame.Rect(t1.rect.x, t1.rect.y + t1.speed, 50, 50)
             elif t1.route == -2:
                 mob = pygame.Rect(t1.rect.x, t1.rect.y - t1.speed, 50, 50)
+            for t2 in enemy:
+                en = pygame.Rect(t2.rect.x, t2.rect.y, 50, 50)
+                if mob.colliderect(en) and t2.shooting > 0:
+                    t1.route = change_route(t1)
+                    flip_sprite(t1, True)
+                    break
             for b in blocks:
                 if b.type == False and mob.colliderect(b):
                     if b.color == brick:
@@ -407,8 +413,8 @@ def game():
         spawn_delay2 -= 1
         collision(tanks1)
         collision(tanks2)
-        col_check(tanks1, 1)
-        col_check(tanks2, 2)
+        col_check(tanks1, 1, tanks2)
+        col_check(tanks2, 2, tanks1)
         check_fire()
         # for i in all_tanks:
         #     i.move()
