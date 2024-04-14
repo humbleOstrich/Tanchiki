@@ -163,6 +163,7 @@ def spawn(n):
 
 
 def fire(predator, prey, flag=True):
+    # print(dead_tanks)
     if not flag:
         predator.shooting = -80
         prey.shooting = -80
@@ -425,7 +426,7 @@ def game():
         screen.fill((0, 0, 0))
         draw_blocks()
         draw_tanks()
-        # draw_grass()
+        draw_grass()
         pygame.display.flip()
         clock.tick(FPS)
 
