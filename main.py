@@ -42,6 +42,8 @@ def draw_grass():
 
 
 def draw_tanks():
+    for t in dead_tanks:
+        screen.blit(t.color, (t.rect.x, t.rect.y))
     for t in tanks1:
         # print(t.rect.x, t.rect.y)
         # screen.blit(tank_img, (t.rect.x, t.rect.y))
@@ -52,7 +54,8 @@ def draw_tanks():
         # elif t.shooting < 0:
         #     t.color = shot
         #     t.shooting += 1
-        screen.blit(t.color, (t.rect.x, t.rect.y))
+        if t.shooting >= 0:
+            screen.blit(t.color, (t.rect.x, t.rect.y))
     for t in tanks2:
         # print(t.rect.x, t.rect.y)
         # if t.shooting > 0:
@@ -61,7 +64,8 @@ def draw_tanks():
         # elif t.shooting < 0:
         #     t.color = shot
         #     t.shooting += 1
-        screen.blit(t.color, (t.rect.x, t.rect.y))
+        if t.shooting >= 0:
+            screen.blit(t.color, (t.rect.x, t.rect.y))
         # pygame.draw.rect(screen, (255, 0, 0), (t.rect.x, t.rect.y, 50, 50))
 
 
@@ -131,7 +135,7 @@ def terminate():
 def spawn(n):
     global tk1, tk2, spawn_delay1, spawn_delay2
     a = randint(0, 1)
-    print('spawn', n, tk1, tk2)
+    # print('spawn', n, tk1, tk2)
     if n == 1:
         x, y = spawn1[a]
         for i in all_tanks:
@@ -158,19 +162,18 @@ def spawn(n):
             spawn_delay2 = 100
 
 
-# def fire_anim():
-#     pass
-
-
 def fire(predator, prey, flag=True):
     if not flag:
         predator.shooting = -80
         prey.shooting = -80
         predator.color = shot
         prey.color = shot
+        dead_tanks.append(predator)
+        dead_tanks.append(prey)
     else:
         predator.shooting = 80
         prey.shooting = -80
+        dead_tanks.append(prey)
         if predator.number == 1:
             predator.color = tank1_shooting
         else:
@@ -295,6 +298,7 @@ def col_check(group, n, enemy):
     for t1 in group:
         if t1.shooting == -1:
             all_tanks.remove(t1)
+            dead_tanks.remove(t1)
             if n == 1:
                 tanks1.remove(t1)
                 tanks1_gr.remove(t1)
@@ -444,6 +448,7 @@ field_blocks = []
 # all_sprites = pygame.sprite.Group()
 tanks1 = []
 tanks2 = []
+dead_tanks = []
 all_tanks = tanks1[:] + tanks2[:]
 spawn1 = []
 spawn2 = []
