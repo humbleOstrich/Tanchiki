@@ -10,6 +10,3 @@ class Block(pygame.sprite.Sprite):
         self.rect.y = y * 25
         self.color = color
         self.type = type
-
-    # def update(self):
-    #     pygame.draw.rect(screen, self.color, (self.rect.x, self.rect.y, 25, 25))
