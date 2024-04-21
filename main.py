@@ -90,7 +90,6 @@ def terminate():
 def spawn(n):
     global tk1, tk2, spawn_delay1, spawn_delay2
     a = randint(0, 1)
-    # print('spawn', n, tk1, tk2)
     if n == 1:
         x, y = spawn1[a]
         for i in all_tanks:
@@ -120,15 +119,15 @@ def spawn(n):
 def fire(predator, prey, flag=True):
     # print(dead_tanks)
     if not flag:
-        predator.shooting = -50
-        prey.shooting = -50
+        predator.shooting = -80
+        prey.shooting = -80
         predator.color = shot
         prey.color = shot
         dead_tanks.append(predator)
         dead_tanks.append(prey)
     else:
         predator.shooting = 80
-        prey.shooting = -50
+        prey.shooting = -80
         dead_tanks.append(prey)
         if predator.number == 1:
             predator.color = tank1_shooting
@@ -334,6 +333,8 @@ def game():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
+        # for i in range(10):
+        #     screen.blit(variable with picture, (10 + i * 50, 260)) # draw lives
         if tk1 < 5 and spawn_delay1 <= 0:
             spawn(1)
             # tk1 += 1
@@ -342,6 +343,7 @@ def game():
             spawn(2)
             # tk2 += 1
             # spawn_delay2 = 100
+
         spawn_delay1 -= 1
         spawn_delay2 -= 1
         collision(tanks1)
@@ -349,6 +351,8 @@ def game():
         col_check(tanks1, 1, tanks2)
         col_check(tanks2, 2, tanks1)
         check_fire()
+        # for i in all_tanks:
+        #     i.move()
         screen.fill((0, 0, 0))
         draw_blocks()
         draw_tanks()
@@ -368,7 +372,6 @@ clock = pygame.time.Clock()
 blocks = []
 grass_blocks = []
 field_blocks = []
-
 tanks1 = []
 tanks2 = []
 dead_tanks = []

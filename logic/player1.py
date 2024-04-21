@@ -6,7 +6,6 @@ class Player1(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y, color, group):
         super().__init__(group)
         self.rect = pygame.Rect(pos_x * 25, pos_y * 25, 50, 50)
-        # self.group = group
         routes = [1, -1, 2, -2]
         self.route = routes[randint(0, 3)]
         self.rect.x = pos_x * 25
