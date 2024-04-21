@@ -126,6 +126,7 @@ def fire(predator, prey, flag=True):
         dead_tanks.append(predator)
         dead_tanks.append(prey)
     else:
+        predator.bullets -= 1
         predator.shooting = 80
         prey.shooting = -80
         dead_tanks.append(prey)
@@ -159,6 +160,10 @@ def check_fire():
                                 b = 1
                             elif bottom.route == -1 or bottom.route == 1:
                                 b = 0.5
+                            if top.recharge <= 0:
+                                a = -100
+                            if bottom.recharge <= 0:
+                                b = -100
                             if a > b:
                                 top.route = 2
                                 fire(top, bottom)
@@ -184,6 +189,10 @@ def check_fire():
                                 b = 1
                             elif right.route == -2 or right.route == 2:
                                 b = 0.5
+                            if left.recharge <= 0:
+                                a = -100
+                            if right.recharge <= 0:
+                                b = -100
                             if a > b:
                                 left.route = 1
                                 fire(left, right)
@@ -226,17 +235,22 @@ def change_route(ent):
 
 
 def fire_brick(t, b):
-    t.shooting = 35
-    if t.number == 1:
-        t.color = tank1_shooting
-    else:
-        t.color = tank2_shooting
-    flip_sprite(t, False)
-    blocks.remove(b)
+    if t.recharge > 0:
+        t.shooting = 35
+        t.bullets -= 1
+        if t.number == 1:
+            t.color = tank1_shooting
+        else:
+            t.color = tank2_shooting
+        flip_sprite(t, False)
+        blocks.remove(b)
 
 
 def col_check(group, n, enemy):
     for t1 in group:
+        if t1.bullets <= 0:
+            t1.recharge = -300
+            t1.bullets = 50
         if t1.shooting == -1:
             all_tanks.remove(t1)
             dead_tanks.remove(t1)
@@ -293,6 +307,7 @@ def col_check(group, n, enemy):
             else:
                 t1.move()
             t1.status -= 1
+            t1.recharge += 1
             if t1.status <= 0:
                 t1.speed = 5
 
@@ -394,6 +409,8 @@ ice = load_image('ice2.png')
 metal = load_image('metal2.png')
 tank1 = load_image('blue_tank.png')
 tank2 = load_image('green_tank.png')
+tank1_strong = load_image('tank1_strong.png')
+tank2_strong = load_image('tank2_strong.png')
 tank1_shooting = load_image('blue_tank_shooting.png')
 tank2_shooting = load_image('green_tank_shooting.png')
 shot = load_image('shot.png')

@@ -15,6 +15,8 @@ class Player1(pygame.sprite.Sprite):
         self.status = 0
         self.color = color
         self.shooting = 0
+        self.bullets = 50
+        self.recharge = 1
         self.number = 1
 
     def move(self):
