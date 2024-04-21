@@ -87,7 +87,7 @@ def terminate():
     sys.exit()
 
 
-def spawn(n):
+def spawn(n, power=False):
     global tk1, tk2, spawn_delay1, spawn_delay2
     a = randint(0, 1)
     if n == 1:
@@ -96,7 +96,11 @@ def spawn(n):
             if i.rect.x in range(x - 100, x + 50) or i.rect.y in range(y - 100, y + 50):
                 break
         else:
-            entity = Player1(x, y, copy(tank1), tanks1_gr)
+            if power:
+                entity = Player1(x, y, copy(tank1_strong), tanks1_gr, True)
+            else:
+                entity = Player1(x, y, copy(tank1), tanks1_gr, False)
+            entity.recharge_f()
             tanks1.append(entity)
             flip_sprite(entity, True)
             all_tanks.append(entity)
@@ -108,7 +112,11 @@ def spawn(n):
             if i.rect.x in range(x - 100, x + 50) or i.rect.y in range(y - 100, y + 50):
                 break
         else:
-            entity = Player2(x, y, copy(tank2), tanks2_gr)
+            if power:
+                entity = Player2(x, y, copy(tank2_strong), tanks2_gr, True)
+            else:
+                entity = Player2(x, y, copy(tank2), tanks2_gr, False)
+            entity.recharge_f()
             tanks2.append(entity)
             flip_sprite(entity, True)
             all_tanks.append(entity)
@@ -119,22 +127,37 @@ def spawn(n):
 def fire(predator, prey, flag=True):
     # print(dead_tanks)
     if not flag:
-        predator.shooting = -80
-        prey.shooting = -80
-        predator.color = shot
-        prey.color = shot
-        dead_tanks.append(predator)
-        dead_tanks.append(prey)
+        if not predator.power or predator.lives <= 1:
+            predator.shooting = -80
+            predator.color = shot
+            dead_tanks.append(predator)
+        else:
+            predator.lives -= 1
+        if not prey.power or prey.lives <= 1:
+            prey.shooting = -80
+            prey.color = shot
+            dead_tanks.append(prey)
+        else:
+            prey.lives -= 1
     else:
         predator.bullets -= 1
         predator.shooting = 80
-        prey.shooting = -80
-        dead_tanks.append(prey)
-        if predator.number == 1:
-            predator.color = tank1_shooting
+        if not prey.power or prey.lives <= 1:
+            prey.shooting = -80
+            prey.color = shot
+            dead_tanks.append(prey)
         else:
-            predator.color = tank2_shooting
-        prey.color = shot
+            prey.lives -= 1
+        if predator.number == 1:
+            if predator.power:
+                predator.color = tank1_strong_shooting
+            else:
+                predator.color = tank1_shooting
+        else:
+            if predator.power:
+                predator.color = tank2_strong_shooting
+            else:
+                predator.color = tank2_shooting
         flip_sprite(predator, False)
 
 
@@ -207,14 +230,26 @@ def flip_sprite(s, flag):
     route = s.route
     if flag:
         if s.number == 1:
-            t = tank1
+            if s.power:
+                t = tank1_strong
+            else:
+                t = tank1
         else:
-            t = tank2
+            if s.power:
+                t = tank2_strong
+            else:
+                t = tank2
     else:
         if s.number == 1:
-            t = tank1_shooting
+            if s.power:
+                t = tank1_strong_shooting
+            else:
+                t = tank1_shooting
         else:
-            t = tank2_shooting
+            if s.power:
+                t = tank2_strong_shooting
+            else:
+                t = tank2_shooting
     if s.route == -2:
         s.color = t
     elif s.route == 2:
@@ -239,9 +274,15 @@ def fire_brick(t, b):
         t.shooting = 35
         t.bullets -= 1
         if t.number == 1:
-            t.color = tank1_shooting
+            if t.power:
+                t.color = tank1_strong_shooting
+            else:
+                t.color = tank1_shooting
         else:
-            t.color = tank2_shooting
+            if t.power:
+                t.color = tank2_strong_shooting
+            else:
+                t.color = tank2_shooting
         flip_sprite(t, False)
         blocks.remove(b)
 
@@ -250,7 +291,7 @@ def col_check(group, n, enemy):
     for t1 in group:
         if t1.bullets <= 0:
             t1.recharge = -300
-            t1.bullets = 50
+            t1.recharge_f()
         if t1.shooting == -1:
             all_tanks.remove(t1)
             dead_tanks.remove(t1)
@@ -289,13 +330,15 @@ def col_check(group, n, enemy):
                 if b.type == False and mob.colliderect(b):
                     if b.color == brick:
                         fire_chance = randint(0, 2)
-                        if fire_chance == 1:
+                        if fire_chance == 1 or (t1.power and t1.recharge):
                             fire_brick(t1, b)
                             break
                         else:
                             t1.route = change_route(t1)
                             flip_sprite(t1, True)
                             break
+                    elif b.color == water and t1.power:
+                        continue
                     else:
                         t1.route = change_route(t1)
                         flip_sprite(t1, True)
@@ -351,11 +394,17 @@ def game():
         # for i in range(10):
         #     screen.blit(variable with picture, (10 + i * 50, 260)) # draw lives
         if tk1 < 5 and spawn_delay1 <= 0:
-            spawn(1)
+            if tk1 == 4:
+                spawn(1, power=True)
+            else:
+                spawn(1)
             # tk1 += 1
             # spawn_delay1 = 100
         if tk2 < 5 and spawn_delay2 <= 0:
-            spawn(2)
+            if tk2 == 4:
+                spawn(2, power=True)
+            else:
+                spawn(2)
             # tk2 += 1
             # spawn_delay2 = 100
 
@@ -411,6 +460,8 @@ tank1 = load_image('blue_tank.png')
 tank2 = load_image('green_tank.png')
 tank1_strong = load_image('tank1_strong.png')
 tank2_strong = load_image('tank2_strong.png')
+tank1_strong_shooting = load_image('tank1_strong.png')
+tank2_strong_shooting = load_image('tank2_strong.png')
 tank1_shooting = load_image('blue_tank_shooting.png')
 tank2_shooting = load_image('green_tank_shooting.png')
 shot = load_image('shot.png')
