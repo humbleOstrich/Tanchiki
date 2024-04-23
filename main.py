@@ -7,6 +7,16 @@ from logic.player2 import Player2
 from logic.block import Block
 from random import randint
 from copy import copy
+pygame.init()
+pygame.font.init()
+
+
+font1 = pygame.font.Font(None, 50)
+font2 = pygame.font.SysFont("centuryschoolbookполужирный", 150)
+
+
+def draw_str(line, font=font1):
+    return font.render(str(line), True, (219, 215, 210))
 
 
 def draw_blocks():
@@ -124,6 +134,15 @@ def spawn(n, power=False):
             spawn_delay2 = 100
 
 
+def remove_life(entity):
+    global s1, s2
+    if entity.number == 1:
+        s1 -= 1
+    else:
+        s2 -= 1
+    print(entity.number, "life removed!")
+
+
 def fire(predator, prey, flag=True):
     # print(dead_tanks)
     if not flag:
@@ -139,6 +158,8 @@ def fire(predator, prey, flag=True):
             dead_tanks.append(prey)
         else:
             prey.lives -= 1
+        remove_life(predator)
+        remove_life(prey)
     else:
         predator.bullets -= 1
         predator.shooting = 80
@@ -158,6 +179,7 @@ def fire(predator, prey, flag=True):
                 predator.color = tank2_strong_shooting
             else:
                 predator.color = tank2_shooting
+        remove_life(prey)
         flip_sprite(predator, False)
 
 
@@ -384,6 +406,24 @@ def collision(group):
                         flip_sprite(t2, True)
 
 
+def draw_lives(n):
+    global s1, s2
+    screen.blit(draw_str("Lives left:"), (10, 30))
+    if n == 1:
+        img = tank1
+        f = 200
+        q = s1
+    else:
+        img = tank2
+        f = 0
+        q = s2
+    for i in range(4):
+        screen.blit(img, ((i % 4) * 50, f + 100))
+    for i in range(q - 4):
+        screen.blit(img, ((i % 4) * 50, f + 200))
+        # print(25 + (i % 4) * 25, 50 + i // 3 * 50)
+
+
 def game():
     global tk1, tk2, spawn_delay1, spawn_delay2
     level_n = 1
@@ -419,6 +459,11 @@ def game():
         #     i.move()
         screen.fill((0, 0, 0))
         draw_blocks()
+        # s1 = sum(i.lives if i.power else 1 for i in tanks1)
+        # s2 = sum(i.lives if i.power else 1 for i in tanks2)
+        # print(s1, s2)
+        draw_lives(1)
+        draw_lives(2)
         draw_tanks()
         draw_grass()
         pygame.display.flip()
@@ -428,10 +473,12 @@ def game():
 size = width, height = 1400, 700
 WIDTH, HEIGHT = width, height
 screen = pygame.display.set_mode(size)
-# programIcon = pygame.image.load('data/icon.png')
-# pygame.display.set_icon(programIcon)
+programIcon = load_image('icon.png')
+pygame.display.set_icon(programIcon)
 FPS = 50
 clock = pygame.time.Clock()
+s1 = 7
+s2 = 7
 
 blocks = []
 grass_blocks = []
