@@ -5,6 +5,7 @@ import sys
 from logic.player1 import Player1
 from logic.player2 import Player2
 from logic.block import Block
+from logic.button import Button
 from random import randint
 from copy import copy
 pygame.init()
@@ -417,11 +418,76 @@ def draw_lives(n):
         img = tank2
         f = 0
         q = s2
-    for i in range(4):
+    for i in range(min(q, 4)):
         screen.blit(img, ((i % 4) * 50, f + 100))
-    for i in range(q - 4):
+    for i in range(max(0, q - 4)):
         screen.blit(img, ((i % 4) * 50, f + 200))
         # print(25 + (i % 4) * 25, 50 + i // 3 * 50)
+
+
+def end_screen(n):
+    while True:
+        screen.fill((0, 0, 0))
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    return start_screen()
+        if n == 0:
+            text1 = draw_str("Game ended in a draw!", font=font2)
+        elif n == 1:
+            text1 = draw_str("Player 1 won!", font=font2)
+        elif n == 2:
+            text1 = draw_str("Player 2 won!", font=font2)
+        text2 = draw_str("Press space bar to restart")
+        text2_rect = text2.get_rect(center=(width / 2, 450))
+        text1_rect = text1.get_rect(center=(width / 2, 250))
+        screen.blit(text1, text1_rect)
+        screen.blit(text2, text2_rect)
+        pygame.display.flip()
+        pygame.time.delay(FPS)
+
+
+def start_screen():
+    while True:
+        screen.fill((0, 0, 0))
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+        screen.blit(screensaver, (0,0))
+        level_btn = Button(550, 400, button)
+        if level_btn.draw(screen):
+            generate_level(load_level(map_name))
+            return game()
+        pygame.display.flip()
+        pygame.time.delay(FPS)
+
+
+def null_f(n):
+    global s1, s2, blocks, grass_blocks, field_blocks, \
+        tanks1, tanks2, dead_tanks, all_tanks, spawn1, spawn2, tanks1_gr, \
+        tanks2_gr, tk1, tk2, spawn_delay1, spawn_delay2
+    s1 = 7
+    s2 = 7
+    blocks = []
+    grass_blocks = []
+    field_blocks = []
+    tanks1 = []
+    tanks2 = []
+    dead_tanks = []
+    all_tanks = tanks1[:] + tanks2[:]
+    spawn1 = []
+    spawn2 = []
+    for i in tanks1_gr:
+        i.kill()
+    for i in tanks2_gr:
+        i.kill()
+    tk1 = 0
+    tk2 = 0
+    spawn_delay1 = 0
+    spawn_delay2 = 0
+    return end_screen(n)
 
 
 def game():
@@ -466,6 +532,12 @@ def game():
         draw_lives(2)
         draw_tanks()
         draw_grass()
+        if s1 == 0 and s2 > 0:
+            return null_f(2)
+        elif s2 == 0 and s1 > 0:
+            return null_f(1)
+        elif s1 == s2 == 0:
+            return null_f(0)
         pygame.display.flip()
         clock.tick(FPS)
 
@@ -512,8 +584,9 @@ tank2_strong_shooting = load_image('tank2_strong.png')
 tank1_shooting = load_image('blue_tank_shooting.png')
 tank2_shooting = load_image('green_tank_shooting.png')
 shot = load_image('shot.png')
+button = load_image('start.png')
+screensaver = load_image('screensaver.png')
 pygame.display.set_caption('Battle City')
 map_name = "levels/level1.txt"
-generate_level(load_level(map_name))
 
-game()
+start_screen()
