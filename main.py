@@ -466,29 +466,21 @@ def end_screen(n):
 
 
 def start_screen():
-    global tk1, tk2, tk1_strong, tk2_strong, s1, s2
+    global tk1, tk1_strong, tk2, tk2_strong, s1, s2
+    tk1 = int(input('Количество обычных танков игрока 1: '))
+    tk1_strong = int(input('Количество сильных танков игрока 1: '))
+    tk2 = int(input('Количество обычных танков игрока 2: '))
+    tk2_strong = int(input('Количество сильных танков игрока 2: '))
+    s1 = tk1 + tk1_strong * 3
+    s2 = tk2 + tk2_strong * 3
     while True:
         screen.fill((0, 0, 0))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
         screen.blit(screensaver, (0,0))
-        two_two = Button(250, 400, button)
-        one_three = Button(500, 400, button)
-        all_four = Button(750, 400, button)
-        if two_two.draw(screen):
-            tk1, tk2, tk1_strong, tk2_strong = 2, 2, 2, 2
-            s1, s2 = 8, 8
-            generate_level(load_level(map_name))
-            return game()
-        if one_three.draw(screen):
-            tk1, tk2, tk1_strong, tk2_strong = 3, 3, 1, 1
-            s1, s2 = 6, 6
-            generate_level(load_level(map_name))
-            return game()
-        if all_four.draw(screen):
-            tk1, tk2, tk1_strong, tk2_strong = 4, 4, 0, 0
-            s1, s2 = 4, 4
+        lvl_btn = Button(550, 400, button)
+        if lvl_btn.draw(screen):
             generate_level(load_level(map_name))
             return game()
         pygame.display.flip()
@@ -609,10 +601,6 @@ spawn2 = []
 tanks1_gr = pygame.sprite.Group()
 tanks2_gr = pygame.sprite.Group()
 
-tk1 = 0
-tk2 = 0
-tk1_strong = 0
-tk2_strong = 0
 spawn_delay1 = 0
 spawn_delay2 = 0
 
@@ -635,5 +623,4 @@ button = load_image('start.png')
 screensaver = load_image('screensaver.png')
 pygame.display.set_caption('Battle City')
 map_name = "levels/level1.txt"
-
 start_screen()
