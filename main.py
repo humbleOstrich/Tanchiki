@@ -1,5 +1,4 @@
 import pygame
-import sqlite3
 import os
 import sys
 from logic.player1 import Player1
@@ -435,7 +434,7 @@ def end_screen(n):
                 if event.key == pygame.K_SPACE:
                     return start_screen()
         if n == 0:
-            text1 = draw_str("Game ended in a draw!", font=font2)
+            text1 = draw_str("Draw!", font=font2)
         elif n == 1:
             text1 = draw_str("Player 1 won!", font=font2)
         elif n == 2:
