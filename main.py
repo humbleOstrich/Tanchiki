@@ -98,7 +98,7 @@ def terminate():
 
 
 def spawn(n, power=False):
-    global tk1, tk2, spawn_delay1, spawn_delay2
+    global spawn_delay1, spawn_delay2, tk1, tk2, tk1_strong, tk2_strong
     a = randint(0, 1)
     if n == 1:
         x, y = spawn1[a]
@@ -108,13 +108,14 @@ def spawn(n, power=False):
         else:
             if power:
                 entity = Player1(x, y, copy(tank1_strong), tanks1_gr, True)
+                tk1_strong -= 1
             else:
                 entity = Player1(x, y, copy(tank1), tanks1_gr, False)
+                tk1 -= 1
             entity.recharge_f()
             tanks1.append(entity)
             flip_sprite(entity, True)
             all_tanks.append(entity)
-            tk1 += 1
             spawn_delay1 = 100
     else:
         x, y = spawn2[a]
@@ -124,13 +125,14 @@ def spawn(n, power=False):
         else:
             if power:
                 entity = Player2(x, y, copy(tank2_strong), tanks2_gr, True)
+                tk2_strong -= 1
             else:
                 entity = Player2(x, y, copy(tank2), tanks2_gr, False)
+                tk2 -= 1
             entity.recharge_f()
             tanks2.append(entity)
             flip_sprite(entity, True)
             all_tanks.append(entity)
-            tk2 += 1
             spawn_delay2 = 100
 
 
@@ -449,14 +451,29 @@ def end_screen(n):
 
 
 def start_screen():
+    global tk1, tk2, tk1_strong, tk2_strong, s1, s2
     while True:
         screen.fill((0, 0, 0))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
         screen.blit(screensaver, (0,0))
-        level_btn = Button(550, 400, button)
-        if level_btn.draw(screen):
+        two_two = Button(250, 400, button)
+        one_three = Button(500, 400, button)
+        all_four = Button(750, 400, button)
+        if two_two.draw(screen):
+            tk1, tk2, tk1_strong, tk2_strong = 2, 2, 2, 2
+            s1, s2 = 8, 8
+            generate_level(load_level(map_name))
+            return game()
+        if one_three.draw(screen):
+            tk1, tk2, tk1_strong, tk2_strong = 3, 3, 1, 1
+            s1, s2 = 6, 6
+            generate_level(load_level(map_name))
+            return game()
+        if all_four.draw(screen):
+            tk1, tk2, tk1_strong, tk2_strong = 4, 4, 0, 0
+            s1, s2 = 4, 4
             generate_level(load_level(map_name))
             return game()
         pygame.display.flip()
@@ -466,9 +483,9 @@ def start_screen():
 def null_f(n):
     global s1, s2, blocks, grass_blocks, field_blocks, \
         tanks1, tanks2, dead_tanks, all_tanks, spawn1, spawn2, tanks1_gr, \
-        tanks2_gr, tk1, tk2, spawn_delay1, spawn_delay2
-    s1 = 7
-    s2 = 7
+        tanks2_gr, tk1, tk2, spawn_delay1, spawn_delay2, tk1_strong, tk2_strong
+    s1 = 0
+    s2 = 0
     blocks = []
     grass_blocks = []
     field_blocks = []
@@ -484,13 +501,15 @@ def null_f(n):
         i.kill()
     tk1 = 0
     tk2 = 0
+    tk1_strong = 0
+    tk2_strong = 0
     spawn_delay1 = 0
     spawn_delay2 = 0
     return end_screen(n)
 
 
 def game():
-    global tk1, tk2, spawn_delay1, spawn_delay2
+    global tk1, tk2, tk1_strong, tk2_strong, spawn_delay1, spawn_delay2
     level_n = 1
     while True:
         for event in pygame.event.get():
@@ -498,18 +517,19 @@ def game():
                 terminate()
         # for i in range(10):
         #     screen.blit(variable with picture, (10 + i * 50, 260)) # draw lives
-        if tk1 < 5 and spawn_delay1 <= 0:
-            if tk1 == 4:
+        print(tk1, tk1_strong, tk2, tk2_strong)
+        if ((tk1 + tk1_strong) > 0) and spawn_delay1 <= 0:
+            if tk1 > 0:
+                spawn(1, power=False)
+            elif tk1_strong > 0:
                 spawn(1, power=True)
-            else:
-                spawn(1)
             # tk1 += 1
             # spawn_delay1 = 100
-        if tk2 < 5 and spawn_delay2 <= 0:
-            if tk2 == 4:
+        if ((tk2 + tk2_strong) > 0) and spawn_delay2 <= 0:
+            if tk2 > 0:
+                spawn(2, power=False)
+            elif tk2_strong > 0:
                 spawn(2, power=True)
-            else:
-                spawn(2)
             # tk2 += 1
             # spawn_delay2 = 100
 
@@ -548,8 +568,8 @@ programIcon = load_image('icon.png')
 pygame.display.set_icon(programIcon)
 FPS = 50
 clock = pygame.time.Clock()
-s1 = 7
-s2 = 7
+s1 = 0
+s2 = 0
 
 blocks = []
 grass_blocks = []
@@ -565,6 +585,8 @@ tanks2_gr = pygame.sprite.Group()
 
 tk1 = 0
 tk2 = 0
+tk1_strong = 0
+tk2_strong = 0
 spawn_delay1 = 0
 spawn_delay2 = 0
 
