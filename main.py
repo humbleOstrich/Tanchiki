@@ -5,6 +5,7 @@ from logic.player1 import Player1
 from logic.player2 import Player2
 from logic.block import Block
 from logic.button import Button
+from logic.line import Line
 from random import randint
 from copy import copy
 pygame.init()
@@ -17,6 +18,11 @@ font2 = pygame.font.SysFont("centuryschoolbookполужирный", 150)
 
 def draw_str(line, font=font1):
     return font.render(str(line), True, (219, 215, 210))
+
+
+def draw_lines():
+    for i in lines:
+        pygame.draw.line(screen, (255, 0, 0), [i.start_x, i.start_y], [i.end_x, i.end_y], 5)
 
 
 def draw_blocks():
@@ -142,7 +148,7 @@ def remove_life(entity):
         s1 -= 1
     else:
         s2 -= 1
-    print(entity.number, "life removed!")
+    # print(entity.number, "life removed!")
 
 
 def fire(predator, prey, flag=True):
@@ -188,6 +194,9 @@ def fire(predator, prey, flag=True):
         #         predator.color = tank2_shooting
         remove_life(prey)
         flip_sprite(predator, False)
+    x, y = predator.rect.x + 25, predator.rect.y + 25
+    x1, y1 = prey.rect.x + 25, prey.rect.y + 25
+    lines.append(Line(x, y, x1, y1))
 
 
 def check_fire():
@@ -322,6 +331,7 @@ def col_check(group, n, enemy):
             t1.recharge = -300
             t1.recharge_f()
         if t1.shooting == -1:
+            print("entered spot")
             all_tanks.remove(t1)
             dead_tanks.remove(t1)
             if n == 1:
@@ -488,9 +498,10 @@ def start_screen():
 def null_f(n):
     global s1, s2, blocks, grass_blocks, field_blocks, \
         tanks1, tanks2, dead_tanks, all_tanks, spawn1, spawn2, tanks1_gr, \
-        tanks2_gr, tk1, tk2, spawn_delay1, spawn_delay2, tk1_strong, tk2_strong
+        tanks2_gr, tk1, tk2, spawn_delay1, spawn_delay2, tk1_strong, tk2_strong, lines
     s1 = 0
     s2 = 0
+    lines = []
     blocks = []
     grass_blocks = []
     field_blocks = []
@@ -522,7 +533,6 @@ def game():
                 terminate()
         # for i in range(10):
         #     screen.blit(variable with picture, (10 + i * 50, 260)) # draw lives
-        print(tk1, tk1_strong, tk2, tk2_strong)
         if ((tk1 + tk1_strong) > 0) and spawn_delay1 <= 0:
             if tk1 > 0:
                 spawn(1, power=False)
@@ -556,12 +566,22 @@ def game():
         draw_lives(2)
         draw_tanks()
         draw_grass()
+        draw_lines()
+        to_remove = []
+        for i in lines:
+            i.shooting -= 1
+            if i.shooting <= 0:
+                to_remove.append(i)
+        for i in to_remove:
+            lines.remove(i)
         if s1 == 0 and s2 > 0:
             return null_f(2)
         elif s2 == 0 and s1 > 0:
             return null_f(1)
         elif s1 == s2 == 0:
             return null_f(0)
+        for i in dead_tanks:
+            print(i, "i.shooting:", i.shooting)
         pygame.display.flip()
         clock.tick(FPS)
 
@@ -576,6 +596,7 @@ clock = pygame.time.Clock()
 s1 = 0
 s2 = 0
 
+lines = []
 blocks = []
 grass_blocks = []
 field_blocks = []
