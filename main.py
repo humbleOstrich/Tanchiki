@@ -154,12 +154,16 @@ def fire(predator, prey, flag=True):
             dead_tanks.append(predator)
         else:
             predator.lives -= 1
+            predator.shooting = 80
+            predator.route = -predator.route
         if not prey.power or prey.lives <= 1:
             prey.shooting = -80
             prey.color = shot
             dead_tanks.append(prey)
         else:
             prey.lives -= 1
+            prey.shooting = 80
+            prey.route = -prey.route
         remove_life(predator)
         remove_life(prey)
     else:
@@ -171,16 +175,17 @@ def fire(predator, prey, flag=True):
             dead_tanks.append(prey)
         else:
             prey.lives -= 1
-        if predator.number == 1:
-            if predator.power:
-                predator.color = tank1_strong_shooting
-            else:
-                predator.color = tank1_shooting
-        else:
-            if predator.power:
-                predator.color = tank2_strong_shooting
-            else:
-                predator.color = tank2_shooting
+            prey.shooting = 80
+        # if predator.number == 1:
+        #     if predator.power:
+        #         predator.color = tank1_strong_shooting
+        #     else:
+        #         predator.color = tank1_shooting
+        # else:
+        #     if predator.power:
+        #         predator.color = tank2_strong_shooting
+        #     else:
+        #         predator.color = tank2_shooting
         remove_life(prey)
         flip_sprite(predator, False)
 
