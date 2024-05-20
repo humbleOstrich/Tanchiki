@@ -109,7 +109,7 @@ def spawn(n, power=False):
     if n == 1:
         x, y = spawn1[a]
         for i in all_tanks:
-            if i.rect.x in range(x - 100, x + 50) or i.rect.y in range(y - 100, y + 50):
+            if i.rect.x in range(x - 50, x + 100) or i.rect.y in range(y - 50, y + 100):
                 break
         else:
             if power:
@@ -126,7 +126,7 @@ def spawn(n, power=False):
     else:
         x, y = spawn2[a]
         for i in all_tanks:
-            if i.rect.x in range(x - 100, x + 50) or i.rect.y in range(y - 100, y + 50):
+            if i.rect.x in range(x - 50, x + 100) or i.rect.y in range(y - 50, y + 100):
                 break
         else:
             if power:
@@ -426,19 +426,28 @@ def collision(group):
 def draw_lives(n):
     global s1, s2
     screen.blit(draw_str("Lives left:"), (10, 30))
-    if n == 1:
-        img = tank1
-        f = 200
-        q = s1
-    else:
-        img = tank2
-        f = 0
-        q = s2
-    for i in range(min(q, 4)):
-        screen.blit(img, ((i % 4) * 50, f + 100))
-    for i in range(max(0, q - 4)):
-        screen.blit(img, ((i % 4) * 50, f + 200))
+    # if n == 1:
+    #     img = tank1
+    #     f = 200
+    #     q = s1
+    # else:
+    #     img = tank2
+    #     f = 0
+    #     q = s2
+    # for i in range(min(q, 4)):
+    #     screen.blit(img, ((i % 4) * 50, f + 100))
+    # for i in range(max(0, q - 4)):
+    #     screen.blit(img, ((i % 4) * 50, f + 200))
         # print(25 + (i % 4) * 25, 50 + i // 3 * 50)
+    x = 0
+    img = tank1
+    for i in range(s1):
+        screen.blit(img, ((x % 4) * 50, (x // 4) * 50 + 75))
+        x += 1
+    img = tank2
+    for i in range(s2):
+        screen.blit(img, ((x % 4) * 50, (x // 4) * 50 + 75))
+        x += 1
 
 
 def end_screen(n):
@@ -610,14 +619,14 @@ grass = load_image('grass2.png')
 water = load_image('water2.png')
 ice = load_image('ice2.png')
 metal = load_image('metal2.png')
-tank1 = load_image('blue_tank.png')
-tank2 = load_image('green_tank.png')
-tank1_strong = load_image('tank1_strong.png')
-tank2_strong = load_image('tank2_strong.png')
-tank1_strong_shooting = load_image('tank1_strong.png')
-tank2_strong_shooting = load_image('tank2_strong.png')
-tank1_shooting = load_image('blue_tank_shooting.png')
-tank2_shooting = load_image('green_tank_shooting.png')
+tank1 = load_image('blue.png')
+tank2 = load_image('red.png')
+tank1_strong = load_image('blue_monster.png')
+tank2_strong = load_image('red_monster.png')
+tank1_strong_shooting = load_image('blue_monster_shooting.png')
+tank2_strong_shooting = load_image('red_monster_shooting.png')
+tank1_shooting = load_image('blue_shooting.png')
+tank2_shooting = load_image('red_shooting.png')
 shot = load_image('shot.png')
 button = load_image('start.png')
 screensaver = load_image('screensaver.png')
