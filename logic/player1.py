@@ -10,7 +10,7 @@ class Player1(pygame.sprite.Sprite):
         self.route = routes[randint(0, 3)]
         self.rect.x = pos_x * 25
         self.rect.y = pos_y * 25
-        self.turn = -1
+        # self.turn = -1
         self.speed = 5
         self.status = 0
         self.color = color

@@ -14,7 +14,7 @@ class Player2(pygame.sprite.Sprite):
         # self.rect.left = self.rect.x
         # self.rect.bottom = self.rect.y + 50
         # self.rect.top = self.rect.y
-        self.turn = -1
+        # self.turn = -1
         self.speed = 5
         self.status = 0
         self.color = color
