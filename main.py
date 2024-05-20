@@ -22,7 +22,7 @@ def draw_str(line, font=font1):
 
 def draw_lines():
     for i in lines:
-        pygame.draw.line(screen, (255, 0, 0), [i.start_x, i.start_y], [i.end_x, i.end_y], 5)
+        pygame.draw.line(screen, (139, 0, 255), [i.start_x, i.start_y], [i.end_x, i.end_y], 8)
 
 
 def draw_blocks():
@@ -488,7 +488,7 @@ def start_screen():
             if event.type == pygame.QUIT:
                 terminate()
         screen.blit(screensaver, (0,0))
-        lvl_btn = Button(550, 400, button)
+        lvl_btn = Button(550, 460, button)
         if lvl_btn.draw(screen):
             generate_level(load_level(map_name))
             return game()
