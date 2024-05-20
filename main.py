@@ -352,13 +352,13 @@ def col_check(group, n, enemy):
                 flip_sprite(t1, True)
         else:
             if t1.route == 1:
-                mob = pygame.Rect(t1.rect.x + t1.speed, t1.rect.y, 50, 50)
+                mob = pygame.Rect(t1.rect.x + t1.speed * 5, t1.rect.y, 50, 50)
             elif t1.route == -1:
-                mob = pygame.Rect(t1.rect.x - t1.speed, t1.rect.y, 50, 50)
+                mob = pygame.Rect(t1.rect.x - t1.speed * 5, t1.rect.y, 50, 50)
             elif t1.route == 2:
-                mob = pygame.Rect(t1.rect.x, t1.rect.y + t1.speed, 50, 50)
+                mob = pygame.Rect(t1.rect.x, t1.rect.y + t1.speed * 5, 50, 50)
             elif t1.route == -2:
-                mob = pygame.Rect(t1.rect.x, t1.rect.y - t1.speed, 50, 50)
+                mob = pygame.Rect(t1.rect.x, t1.rect.y - t1.speed * 5, 50, 50)
             for t2 in enemy:
                 en = pygame.Rect(t2.rect.x, t2.rect.y, 50, 50)
                 if mob.colliderect(en) and t2.shooting > 0:
@@ -398,23 +398,23 @@ def collision(group):
     for t1 in group:
         if t1.shooting == 0:
             if t1.route == 1:
-                mob1 = pygame.Rect(t1.rect.x + t1.speed, t1.rect.y, 50, 50)
+                mob1 = pygame.Rect(t1.rect.x + t1.speed * 5, t1.rect.y, 50, 50)
             elif t1.route == -1:
-                mob1 = pygame.Rect(t1.rect.x - t1.speed, t1.rect.y, 50, 50)
+                mob1 = pygame.Rect(t1.rect.x - t1.speed * 5, t1.rect.y, 50, 50)
             elif t1.route == 2:
-                mob1 = pygame.Rect(t1.rect.x, t1.rect.y + t1.speed, 50, 50)
+                mob1 = pygame.Rect(t1.rect.x, t1.rect.y + t1.speed * 5, 50, 50)
             elif t1.route == -2:
-                mob1 = pygame.Rect(t1.rect.x, t1.rect.y - t1.speed, 50, 50)
+                mob1 = pygame.Rect(t1.rect.x, t1.rect.y - t1.speed * 5, 50, 50)
             for t2 in group:
                 if t1 != t2 and t2.shooting >= 0:
                     if t2.route == 1:
-                        mob2 = pygame.Rect(t2.rect.x + t2.speed, t2.rect.y, 50, 50)
+                        mob2 = pygame.Rect(t2.rect.x + t2.speed * 5, t2.rect.y, 50, 50)
                     elif t2.route == -1:
-                        mob2 = pygame.Rect(t2.rect.x - t2.speed, t2.rect.y, 50, 50)
+                        mob2 = pygame.Rect(t2.rect.x - t2.speed * 5, t2.rect.y, 50, 50)
                     elif t2.route == 2:
-                        mob2 = pygame.Rect(t2.rect.x, t2.rect.y + t2.speed, 50, 50)
+                        mob2 = pygame.Rect(t2.rect.x, t2.rect.y + t2.speed * 5, 50, 50)
                     elif t2.route == -2:
-                        mob2 = pygame.Rect(t2.rect.x, t2.rect.y - t2.speed, 50, 50)
+                        mob2 = pygame.Rect(t2.rect.x, t2.rect.y - t2.speed * 5, 50, 50)
                     if mob1.colliderect(mob2):
                         t1.route = -t1.route
                         flip_sprite(t1, True)
